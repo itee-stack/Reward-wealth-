@@ -1,283 +1,730 @@
- <!doctype html>
+<!doctype html>
 <html lang="en" class="h-full">
  <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Reward Wealth AI</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Reward Investments</title>
   <script src="https://cdn.tailwindcss.com/3.4.17"></script>
   <script src="https://cdn.jsdelivr.net/npm/lucide@0.263.0/dist/umd/lucide.min.js"></script>
   <script src="/_sdk/element_sdk.js"></script>
-  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&amp;family=Playfair+Display:wght@600;700&amp;display=swap" rel="stylesheet">
-  <style>
-  * { box-sizing: border-box; margin: 0; padding: 0; }
-  html, body { height: 100%; font-family: 'DM Sans', sans-serif; }
-  .chat-scroll::-webkit-scrollbar { width: 6px; }
-  .chat-scroll::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.15); border-radius: 3px; }
-  .typing-dot { animation: typingBounce 1.4s infinite ease-in-out; }
-  .typing-dot:nth-child(2) { animation-delay: 0.2s; }
-  .typing-dot:nth-child(3) { animation-delay: 0.4s; }
-  @keyframes typingBounce {
-    0%, 80%, 100% { transform: scale(0.6); opacity: 0.4; }
-    40% { transform: scale(1); opacity: 1; }
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&amp;family=Playfair+Display:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
+  <script>
+tailwind.config = {
+  theme: {
+    extend: {
+      fontFamily: {
+        heading: ['Playfair Display', 'serif'],
+        body: ['DM Sans', 'sans-serif']
+      }
+    }
   }
-  @keyframes fadeInUp {
-    from { opacity: 0; transform: translateY(12px); }
+}
+</script>
+  <style>
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(30px); }
     to { opacity: 1; transform: translateY(0); }
   }
-  @keyframes slideIn {
-    from { opacity: 0; transform: translateX(-10px); }
-    to { opacity: 1; transform: translateX(0); }
+  @keyframes shimmer {
+    0% { background-position: -200% 0; }
+    100% { background-position: 200% 0; }
   }
-  @keyframes highlight {
-    0% { background: rgba(16,185,129,0.2); }
-    100% { background: rgba(16,185,129,0); }
+  @keyframes pulse-gold {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(212,175,55,0.4); }
+    50% { box-shadow: 0 0 0 12px rgba(212,175,55,0); }
   }
-  .msg-animate { animation: fadeInUp 0.4s ease-out; }
-  .suggestion-btn { transition: all 0.3s ease; }
-  .suggestion-btn:hover { transform: translateY(-3px); box-shadow: 0 8px 16px rgba(16, 185, 129, 0.2); }
-  .stat-card { animation: slideIn 0.5s ease-out forwards; opacity: 0; }
-  .stat-card:nth-child(1) { animation-delay: 0.15s; }
-  .stat-card:nth-child(2) { animation-delay: 0.3s; }
-  .stat-card:nth-child(3) { animation-delay: 0.45s; }
-  .emoji-pop { animation: pop 0.6s ease-out; }
-  @keyframes pop {
-    0% { transform: scale(0) rotate(-20deg); opacity: 0; }
-    50% { transform: scale(1.2); }
-    100% { transform: scale(1) rotate(0); opacity: 1; }
+  .fade-up { animation: fadeUp 0.7s ease forwards; opacity: 0; }
+  .fade-up-d1 { animation-delay: 0.1s; }
+  .fade-up-d2 { animation-delay: 0.2s; }
+  .fade-up-d3 { animation-delay: 0.3s; }
+  .fade-up-d4 { animation-delay: 0.4s; }
+  .fade-up-d5 { animation-delay: 0.5s; }
+  .gold-shimmer {
+    background: linear-gradient(90deg, #D4AF37 0%, #f5e6a3 50%, #D4AF37 100%);
+    background-size: 200% 100%;
+    animation: shimmer 3s ease infinite;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
   }
-</style>
+  .stat-card:hover { transform: translateY(-4px); }
+  .service-card:hover { border-color: #D4AF37; transform: translateY(-6px); }
+  .nav-link { position: relative; }
+  .nav-link::after {
+    content: ''; position: absolute; bottom: -4px; left: 0; width: 0;
+    height: 2px; background: #D4AF37; transition: width 0.3s ease;
+  }
+  .nav-link:hover::after { width: 100%; }
+  .cta-btn { animation: pulse-gold 2.5s ease infinite; }
+  .cta-btn:hover { animation: none; }
+  .grid-pattern {
+    background-image: radial-gradient(circle at 1px 1px, rgba(212,175,55,0.07) 1px, transparent 0);
+    background-size: 40px 40px;
+  }
+  .chat-msg { animation: fadeUp 0.3s ease forwards; }
+  .trend-up { color: #22c55e; }
+  .trend-down { color: #ef4444; }
+  .live-badge { display: inline-block; width: 8px; height: 8px; background: #ef4444; border-radius: 50%; animation: pulse 2s ease-in-out infinite; }
+  @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
+  </style>
   <style>body { box-sizing: border-box; }</style>
   <script src="/_sdk/data_sdk.js" type="text/javascript"></script>
  </head>
- <body class="h-full">
-  <div id="app" class="h-full w-full flex flex-col overflow-hidden" style="background: #0a1628;">
-   <!-- Header -->
-   <header class="flex items-center gap-3 px-5 py-4 border-b" style="border-color: rgba(16,185,129,0.15); background: linear-gradient(135deg, #0a1628 0%, #0f2035 100%); box-shadow: 0 4px 20px rgba(16,185,129,0.08);">
-    <div class="w-11 h-11 rounded-xl flex items-center justify-center" style="background: linear-gradient(135deg, #10b981, #059669); box-shadow: 0 4px 12px rgba(16,185,129,0.3);">
-     <svg width="24" height="24" viewbox="0 0 24 24" fill="none" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 7 13.5 15.5 8.5 10.5 2 17"></polyline><polyline points="16 7 22 7 22 13"></polyline>
-     </svg>
+ <body class="h-full font-body" style="background:#070d1a; color:#e8e8e8;">
+  <style>
+    .news-card:hover { background: rgba(212,175,55,0.12); }
+    .tab-btn.active { color: #D4AF37; border-bottom: 2px solid #D4AF37; }
+    .tab-btn { color: #6b7280; cursor: pointer; padding: 0.75rem 1.5rem; border-bottom: 2px solid transparent; transition: all 0.3s; }
+    .tab-btn:hover { color: #D4AF37; }
+    .calc-input { background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); padding: 0.75rem; border-radius: 0.5rem; color: #e8e8e8; }
+    .calc-result { background: linear-gradient(135deg, rgba(212,175,55,0.1), rgba(212,175,55,0.05)); border: 1px solid rgba(212,175,55,0.2); padding: 1.5rem; border-radius: 1rem; }
+  </style>
+  <div id="app" class="w-full h-full overflow-auto"><!-- Header -->
+   <header class="sticky top-0 z-50 backdrop-blur-xl border-b border-white/5" style="background:rgba(7,13,26,0.85);">
+    <div class="max-w-7xl mx-auto px-6 py-4 flex justify-between items-center">
+     <div class="flex items-center gap-3">
+      <img src="https://i.ibb.co/sd5nJpKy/file-00000000708c71fd9f18971a3b9a32c8.png" alt="Reward Investments Logo" style="width:36px;height:36px;object-fit:contain;" loading="lazy" onerror="console.error('Logo failed to load:', this.src); this.style.background='#D4AF37';this.style.width='36px';this.style.height='36px';this.style.borderRadius='6px';"> <span class="font-heading font-bold text-lg tracking-tight" style="color:#D4AF37;">Reward Investments</span>
+     </div>
+     <nav class="hidden md:flex items-center gap-8"><a href="#home" class="nav-link text-sm text-white/70 hover:text-white transition-colors">Home</a> <a href="#about" class="nav-link text-sm text-white/70 hover:text-white transition-colors">About</a> <a href="#services" class="nav-link text-sm text-white/70 hover:text-white transition-colors">Services</a> <a href="#market" class="nav-link text-sm text-white/70 hover:text-white transition-colors">Market</a> <a href="#advisor" class="nav-link text-sm text-white/70 hover:text-white transition-colors">AI Advisor</a> <a href="#contact" class="nav-link text-sm text-white/70 hover:text-white transition-colors">Contact</a>
+     </nav><button id="mobile-toggle" class="md:hidden text-white/70"><i data-lucide="menu" style="width:24px;height:24px;"></i></button>
     </div>
-    <div class="flex-1">
-     <h1 id="header-name" class="text-white font-bold text-lg" style="font-family: 'Playfair Display', serif; letter-spacing: 0.5px;">Reward Wealth AI</h1>
-     <div class="flex items-center gap-2">
-      <span class="w-2 h-2 rounded-full" style="background: #10b981; animation: pulse 2s infinite;"></span>
-      <p class="text-xs" style="color: #6ee7b7;">Ready to help you build wealth</p>
-     </div>
+    <div id="mobile-menu" class="hidden md:hidden px-6 pb-4 space-y-3"><a href="#home" class="block text-sm text-white/70">Home</a> <a href="#about" class="block text-sm text-white/70">About</a> <a href="#services" class="block text-sm text-white/70">Services</a> <a href="#market" class="block text-sm text-white/70">Market</a> <a href="#advisor" class="block text-sm text-white/70">AI Advisor</a> <a href="#contact" class="block text-sm text-white/70">Contact</a>
     </div>
-   </header><!-- Chat Area -->
-   <div id="chat-area" class="flex-1 overflow-y-auto chat-scroll px-4 py-5 space-y-4">
-    <!-- Welcome Section -->
-    <div class="msg-animate flex gap-3 max-w-2xl">
-     <div class="w-8 h-8 rounded-lg flex-shrink-0 flex items-center justify-center mt-1" style="background: linear-gradient(135deg, #10b981, #059669);">
-      <span class="emoji-pop text-lg" style="display: inline-block;">💬</span>
-     </div>
-     <div class="rounded-2xl rounded-tl-md px-4 py-3 space-y-3" style="background: #12263a; border: 1px solid rgba(16,185,129,0.12);">
-      <p class="text-sm leading-relaxed" style="color: #d1e3dd;">Hey there! 👋 Welcome to <strong style="color: #10b981;">Reward Wealth AI</strong>, your personal investment companion.</p>
-      <p class="text-xs leading-relaxed" style="color: rgba(209,227,221,0.7);">I'm here to turn your financial curiosity into confident investment decisions. Whether you're just curious or ready to make your first investment, I've got your back!</p>
-     </div>
-    </div><!-- Quick Stats -->
-    <div class="pl-11 grid grid-cols-3 gap-2">
-     <div class="stat-card px-3 py-2 rounded-lg text-center" style="background: rgba(16,185,129,0.08); border: 1px solid rgba(16,185,129,0.15);">
-      <p class="text-xs font-semibold" style="color: #10b981;">26%</p>
-      <p class="text-xs" style="color: rgba(209,227,221,0.6);">Avg Returns*</p>
-     </div>
-     <div class="stat-card px-3 py-2 rounded-lg text-center" style="background: rgba(16,185,129,0.08); border: 1px solid rgba(16,185,129,0.15);">
-      <p class="text-xs font-semibold" style="color: #10b981;">150+</p>
-      <p class="text-xs" style="color: rgba(209,227,221,0.6);">Listed Companies</p>
-     </div>
-     <div class="stat-card px-3 py-2 rounded-lg text-center" style="background: rgba(16,185,129,0.08); border: 1px solid rgba(16,185,129,0.15);">
-      <p class="text-xs font-semibold" style="color: #10b981;">1000x</p>
-      <p class="text-xs" style="color: rgba(209,227,221,0.6);">20-Year Growth**</p>
+   </header><!-- Hero -->
+   <section id="home" class="relative grid-pattern overflow-hidden">
+    <div class="absolute inset-0" style="background:radial-gradient(ellipse at 20% 50%, rgba(212,175,55,0.08) 0%, transparent 60%);"></div>
+    <div class="relative max-w-7xl mx-auto px-6 py-28 md:py-40">
+     <div class="max-w-3xl">
+      <div class="fade-up inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-xs font-medium mb-8 border" style="background:rgba(212,175,55,0.08);border-color:rgba(212,175,55,0.2);color:#D4AF37;"><i data-lucide="shield-check" style="width:14px;height:14px;"></i> SEC Regulated Broker-Dealer
+      </div>
+      <h1 id="hero-title" class="fade-up fade-up-d1 font-heading text-4xl md:text-6xl font-bold leading-tight tracking-tight">Creating Wealth Through <span class="gold-shimmer">Intelligent Investing</span></h1>
+      <p id="hero-subtitle" class="fade-up fade-up-d2 text-lg md:text-xl mt-6 leading-relaxed" style="color:#9ca3af;">Reward Investments &amp; Services Limited is a SEC regulated broker-dealer providing professional capital market services in Nigeria.</p>
+      <div class="fade-up fade-up-d3 flex flex-wrap gap-4 mt-10"><a href="#services" class="cta-btn inline-flex items-center gap-2 px-7 py-3.5 rounded-xl font-semibold text-sm transition-all duration-300 hover:scale-105" style="background:linear-gradient(135deg,#D4AF37,#c9a02e);color:#070d1a;"> Start Investing <i data-lucide="arrow-right" style="width:16px;height:16px;"></i> </a> <a href="https://rewardtrader.com/user/login" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-2 px-7 py-3.5 rounded-xl font-semibold text-sm border transition-all duration-300 hover:bg-white/5" style="border-color:rgba(255,255,255,0.15);color:#e8e8e8;"> Reward E-Trade <i data-lucide="external-link" style="width:16px;height:16px;"></i> </a>
+      </div>
      </div>
     </div>
-    <p class="text-xs pl-11" style="color: rgba(209,227,221,0.4);">*Historical average | **Example compound growth</p><!-- Suggestions -->
-    <div id="suggestions" class="flex flex-wrap gap-2 pl-11 mt-6">
-     <button onclick="sendSuggestion(this)" class="suggestion-btn text-xs px-3 py-2 rounded-full transition-all duration-200" style="background: rgba(16,185,129,0.1); color: #10b981; border: 1px solid rgba(16,185,129,0.25);">🚀 I'm new to investing</button> <button onclick="sendSuggestion(this)" class="suggestion-btn text-xs px-3 py-2 rounded-full transition-all duration-200" style="background: rgba(16,185,129,0.1); color: #10b981; border: 1px solid rgba(16,185,129,0.25);">⚡ Show me quick wins</button> <button onclick="sendSuggestion(this)" class="suggestion-btn text-xs px-3 py-2 rounded-full transition-all duration-200" style="background: rgba(16,185,129,0.1); color: #10b981; border: 1px solid rgba(16,185,129,0.25);">📚 Explain the basics</button> <button onclick="sendSuggestion(this)" class="suggestion-btn text-xs px-3 py-2 rounded-full transition-all duration-200" style="background: rgba(16,185,129,0.1); color: #10b981; border: 1px solid rgba(16,185,129,0.25);">💼 I'm ready to invest</button>
+   </section><!-- About -->
+   <section id="about" class="max-w-7xl mx-auto px-6 py-16">
+    <p class="text-xs font-semibold tracking-widest uppercase mb-4" style="color:#D4AF37;">About Us</p>
+    <h2 class="font-heading text-3xl md:text-4xl font-bold leading-tight mb-6">Trusted Partner in Capital Markets</h2>
+    <div class="rounded-2xl p-8 mb-12" style="background:rgba(212,175,55,0.08);border:1px solid rgba(212,175,55,0.2);">
+     <p class="text-lg font-semibold mb-3" style="color:#D4AF37;">Our Commitment</p>
+     <p class="text-base leading-relaxed" style="color:#d1d5db;">At Reward Investments and Services Limited, we deliver world-class capital market services that empower investors, unlock rewarding opportunities, and create lasting financial prosperity.</p>
     </div>
-   </div><!-- Input Area -->
-   <div class="px-4 py-3 border-t" style="border-color: rgba(16,185,129,0.12); background: #0c1d30; box-shadow: 0 -2px 10px rgba(0,0,0,0.3);">
-    <form id="chat-form" class="flex gap-2 items-end">
-     <textarea id="user-input" rows="1" placeholder="Ask about dividends, stocks, portfolio..." class="flex-1 resize-none rounded-xl px-4 py-3 text-sm focus:outline-none transition-all" style="background: #12263a; color: #d1e3dd; border: 1px solid rgba(16,185,129,0.15); max-height: 120px;" onkeydown="if(event.key==='Enter'&amp;&amp;!event.shiftKey){event.preventDefault();document.getElementById('chat-form').dispatchEvent(new Event('submit'))}"></textarea> <button type="submit" id="send-btn" class="px-4 py-2 rounded-lg flex items-center gap-2 flex-shrink-0 transition-all hover:shadow-lg text-sm font-medium" style="background: linear-gradient(135deg, #10b981, #059669); color: white; box-shadow: 0 4px 12px rgba(16,185,129,0.3);"> Send <i data-lucide="arrow-right" style="width:16px;height:16px;"></i> </button>
-    </form>
-    <p class="text-center mt-2" style="color: rgba(209,227,221,0.25); font-size: 11px;">Reward Investments &amp; Services Ltd — Making wealth-building accessible to everyone</p>
+    <div class="grid md:grid-cols-2 gap-12 mb-12">
+     <div>
+      <h3 class="font-heading text-2xl font-bold mb-4">Company Heritage</h3>
+      <p class="leading-relaxed mb-4" style="color:#9ca3af;">Reward Investments and Services Ltd is a private limited liability company incorporated in 1995 with the sole aim of operating in the capital market. We undertake diverse business activities including stockbroking, investment advisory, portfolio management, and consultancy services.</p>
+      <p class="leading-relaxed mb-4" style="color:#9ca3af;">The company was formed out of the sincere need to provide efficient capital market services to all our clients—individuals, corporate, and institutional investors alike. With the expected increase in capital market activities now and in the near future, we are positioned professionally and resource-wise to provide a wide range of investment services to meet client expectations.</p>
+     </div>
+     <div class="space-y-4">
+      <div class="flex items-start gap-4 p-4 rounded-xl" style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);">
+       <div class="w-10 h-10 rounded-lg flex items-center justify-center flex-shrink-0" style="background:rgba(212,175,55,0.15);">
+        <i data-lucide="calendar" style="width:20px;height:20px;color:#D4AF37;"></i>
+       </div>
+       <div>
+        <p class="font-semibold text-sm">Established 1995</p>
+        <p class="text-xs mt-1" style="color:#6b7280;">Over 25 years of market expertise</p>
+       </div>
+      </div>
+      <div class="flex items-start gap-4 p-4 rounded-xl" style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);">
+       <div class="w-10 h-10 rounded-lg flex items-center justify-center flex-shrink-0" style="background:rgba(212,175,55,0.15);">
+        <i data-lucide="award" style="width:20px;height:20px;color:#D4AF37;"></i>
+       </div>
+       <div>
+        <p class="font-semibold text-sm">Multi-Regulated</p>
+        <p class="text-xs mt-1" style="color:#6b7280;">SEC, NGX, and NASD certified</p>
+       </div>
+      </div>
+     </div>
+    </div>
+    <div class="rounded-2xl p-8 mb-12" style="background:linear-gradient(135deg,#111a2f,#1a2744);border:1px solid rgba(212,175,55,0.1);">
+     <h3 class="font-heading text-2xl font-bold mb-6">Credentials &amp; Regulatory Status</h3>
+     <div class="grid sm:grid-cols-2 gap-6">
+      <div class="flex items-start gap-3">
+       <i data-lucide="check-circle-2" style="width:20px;height:20px;color:#D4AF37;flex-shrink:0;margin-top:2px;"></i>
+       <div>
+        <p class="font-semibold text-sm mb-1">SEC Registered Broker/Dealer</p>
+        <p class="text-xs leading-relaxed" style="color:#6b7280;">Registered by Securities and Exchange Commission with full regulatory authority</p>
+       </div>
+      </div>
+      <div class="flex items-start gap-3">
+       <i data-lucide="check-circle-2" style="width:20px;height:20px;color:#D4AF37;flex-shrink:0;margin-top:2px;"></i>
+       <div>
+        <p class="font-semibold text-sm mb-1">NGX Dealing Member</p>
+        <p class="text-xs leading-relaxed" style="color:#6b7280;">Admitted as a dealing member of The Nigerian Stock Exchange</p>
+       </div>
+      </div>
+      <div class="flex items-start gap-3">
+       <i data-lucide="check-circle-2" style="width:20px;height:20px;color:#D4AF37;flex-shrink:0;margin-top:2px;"></i>
+       <div>
+        <p class="font-semibold text-sm mb-1">NASD Participation</p>
+        <p class="text-xs leading-relaxed" style="color:#6b7280;">Participating Institution of the NASD OTC Securities &amp; Exchange</p>
+       </div>
+      </div>
+      <div class="flex items-start gap-3">
+       <i data-lucide="check-circle-2" style="width:20px;height:20px;color:#D4AF37;flex-shrink:0;margin-top:2px;"></i>
+       <div>
+        <p class="font-semibold text-sm mb-1">Expert Team</p>
+        <p class="text-xs leading-relaxed" style="color:#6b7280;">Professionally staffed with competent professionals</p>
+       </div>
+      </div>
+     </div>
+    </div>
+    <div class="grid md:grid-cols-3 gap-6">
+     <div class="flex items-center gap-4 p-4 rounded-xl" style="background:rgba(255,255,255,0.03);">
+      <div class="w-12 h-12 rounded-lg flex items-center justify-center flex-shrink-0" style="background:rgba(212,175,55,0.1);">
+       <i data-lucide="target" style="width:22px;height:22px;color:#D4AF37;"></i>
+      </div>
+      <div>
+       <p class="font-semibold text-sm">Mission</p>
+       <p class="text-xs mt-1 leading-relaxed" style="color:#6b7280;">Premium services &amp; rewarding results</p>
+      </div>
+     </div>
+     <div class="flex items-center gap-4 p-4 rounded-xl" style="background:rgba(255,255,255,0.03);">
+      <div class="w-12 h-12 rounded-lg flex items-center justify-center flex-shrink-0" style="background:rgba(212,175,55,0.1);">
+       <i data-lucide="zap" style="width:22px;height:22px;color:#D4AF37;"></i>
+      </div>
+      <div>
+       <p class="font-semibold text-sm">Excellence</p>
+       <p class="text-xs mt-1 leading-relaxed" style="color:#6b7280;">Competent professionals serving clients</p>
+      </div>
+     </div>
+     <div class="flex items-center gap-4 p-4 rounded-xl" style="background:rgba(255,255,255,0.03);">
+      <div class="w-12 h-12 rounded-lg flex items-center justify-center flex-shrink-0" style="background:rgba(212,175,55,0.1);">
+       <i data-lucide="trending-up" style="width:22px;height:22px;color:#D4AF37;"></i>
+      </div>
+      <div>
+       <p class="font-semibold text-sm">Growth</p>
+       <p class="text-xs mt-1 leading-relaxed" style="color:#6b7280;">Ready for market expansion ahead</p>
+      </div>
+     </div>
+    </div>
+   </section><!-- Market News -->
+   <section class="max-w-7xl mx-auto px-6 py-16">
+    <p class="text-xs font-semibold tracking-widest uppercase mb-4" style="color:#D4AF37;">Insights</p>
+    <h2 class="font-heading text-3xl md:text-4xl font-bold mb-8">Market News &amp; Updates</h2>
+    <div class="space-y-4">
+     <div class="news-card p-6 rounded-xl border transition-all" style="background:#0d1528;border-color:rgba(255,255,255,0.06);">
+      <div class="flex items-start gap-4">
+       <div class="w-12 h-12 rounded-lg flex-shrink-0 flex items-center justify-center" style="background:rgba(212,175,55,0.1);">
+        <i data-lucide="trending-up" style="width:24px;height:24px;color:#D4AF37;"></i>
+       </div>
+       <div class="flex-1">
+        <div class="flex items-center justify-between mb-2">
+         <h3 class="font-semibold">Global Markets Surge on Tech Rally</h3>
+         <p class="text-xs" style="color:#6b7280;">Now</p>
+        </div>
+        <p class="text-sm leading-relaxed mb-3" style="color:#9ca3af;">Major indices rally as technology stocks lead gains following strong earnings reports. Global investors show renewed confidence in growth sectors amid positive economic indicators.</p>
+        <p class="text-xs" style="color:#D4AF37;">Read more →</p>
+       </div>
+      </div>
+     </div>
+     <div class="news-card p-6 rounded-xl border transition-all" style="background:#0d1528;border-color:rgba(255,255,255,0.06);">
+      <div class="flex items-start gap-4">
+       <div class="w-12 h-12 rounded-lg flex-shrink-0 flex items-center justify-center" style="background:rgba(212,175,55,0.1);">
+        <i data-lucide="building-2" style="width:24px;height:24px;color:#D4AF37;"></i>
+       </div>
+       <div class="flex-1">
+        <div class="flex items-center justify-between mb-2">
+         <h3 class="font-semibold">Banking Sector Shows Strength</h3>
+         <p class="text-xs" style="color:#6b7280;">4 hours ago</p>
+        </div>
+        <p class="text-sm leading-relaxed mb-3" style="color:#9ca3af;">Major banks report improved profitability in Q4 earnings. Strong credit growth, improved net interest margins, and digital transformation initiatives drive sector performance.</p>
+        <p class="text-xs" style="color:#D4AF37;">Read more →</p>
+       </div>
+      </div>
+     </div>
+     <div class="news-card p-6 rounded-xl border transition-all" style="background:#0d1528;border-color:rgba(255,255,255,0.06);">
+      <div class="flex items-start gap-4">
+       <div class="w-12 h-12 rounded-lg flex-shrink-0 flex items-center justify-center" style="background:rgba(212,175,55,0.1);">
+        <i data-lucide="briefcase" style="width:24px;height:24px;color:#D4AF37;"></i>
+       </div>
+       <div class="flex-1">
+        <div class="flex items-center justify-between mb-2">
+         <h3 class="font-semibold">Corporate Earnings Beat Expectations</h3>
+         <p class="text-xs" style="color:#6b7280;">6 hours ago</p>
+        </div>
+        <p class="text-sm leading-relaxed mb-3" style="color:#9ca3af;">Major corporations announce record earnings and increased dividends. Market leaders raise shareholder returns and announce aggressive expansion plans despite macroeconomic challenges.</p>
+        <p class="text-xs" style="color:#D4AF37;">Read more →</p>
+       </div>
+      </div>
+     </div>
+    </div>
+   </section><!-- Investment Tips & Reports -->
+   <section class="py-24" style="background:rgba(29,43,79,0.3);">
+    <div class="max-w-7xl mx-auto px-6">
+     <p class="text-xs font-semibold tracking-widest uppercase mb-4" style="color:#D4AF37;">Resources</p>
+     <h2 class="font-heading text-3xl md:text-4xl font-bold mb-8">Investment Tips &amp; Reports</h2>
+     <div class="grid md:grid-cols-2 gap-8 mb-8">
+      <!-- Tips -->
+      <div class="rounded-2xl p-8 border" style="background:#0d1528;border-color:rgba(255,255,255,0.06);">
+       <h3 class="font-heading text-2xl font-bold mb-6">Expert Investment Tips</h3>
+       <div class="space-y-4">
+        <div class="p-4 rounded-lg" style="background:rgba(212,175,55,0.08);border-left:3px solid #D4AF37;">
+         <p class="font-semibold text-sm mb-2">Diversify Your Portfolio</p>
+         <p class="text-xs leading-relaxed" style="color:#9ca3af;">Spread investments across different sectors and asset classes to reduce risk. Aim for a balanced mix of growth and defensive stocks aligned with your risk tolerance.</p>
+        </div>
+        <div class="p-4 rounded-lg" style="background:rgba(212,175,55,0.08);border-left:3px solid #D4AF37;">
+         <p class="font-semibold text-sm mb-2">Start Early &amp; Invest Regularly</p>
+         <p class="text-xs leading-relaxed" style="color:#9ca3af;">Time in market beats timing the market. Regular investments compound significantly over time. Use our calculator to plan your investment journey systematically.</p>
+        </div>
+        <div class="p-4 rounded-lg" style="background:rgba(212,175,55,0.08);border-left:3px solid #D4AF37;">
+         <p class="font-semibold text-sm mb-2">Monitor &amp; Rebalance Quarterly</p>
+         <p class="text-xs leading-relaxed" style="color:#9ca3af;">Review your portfolio regularly. Rebalance when allocations drift significantly from targets to maintain your desired risk level and investment objectives.</p>
+        </div>
+        <div class="p-4 rounded-lg" style="background:rgba(212,175,55,0.08);border-left:3px solid #D4AF37;">
+         <p class="font-semibold text-sm mb-2">Understand Before You Invest</p>
+         <p class="text-xs leading-relaxed" style="color:#9ca3af;">Never invest in something you don't understand. Research company fundamentals, industry trends, and macroeconomic factors before committing capital.</p>
+        </div>
+       </div>
+      </div><!-- Reports -->
+     </div>
+    </div>
+   </section><!-- Market Statistics -->
+   <section id="market" class="max-w-7xl mx-auto px-6 py-24">
+    <p class="text-xs font-semibold tracking-widest uppercase mb-4" style="color:#D4AF37;">Live Data</p>
+    <h2 class="font-heading text-3xl md:text-4xl font-bold mb-8">Market Statistics &amp; Planning</h2>
+    <div class="grid lg:grid-cols-2 gap-8 mb-8"><!-- Investment Calculator (moved here) -->
+     <div class="rounded-2xl p-8 border" style="background:#0d1528;border-color:rgba(255,255,255,0.06);">
+      <p class="text-xs font-semibold tracking-widest uppercase mb-4" style="color:#D4AF37;">Planning</p>
+      <h3 class="font-heading text-2xl font-bold mb-6">Investment Calculator</h3>
+      <div class="space-y-4">
+       <div><label class="block text-xs font-semibold mb-2">Initial Investment (₦)</label> <input id="initial-amount" type="number" placeholder="50,000" value="50000" class="calc-input w-full">
+       </div>
+       <div><label class="block text-xs font-semibold mb-2">Monthly Contribution (₦)</label> <input id="monthly-amount" type="number" placeholder="10,000" value="10000" class="calc-input w-full">
+       </div>
+       <div><label class="block text-xs font-semibold mb-2">Investment Period (Years)</label> <input id="period-years" type="number" placeholder="5" value="5" class="calc-input w-full">
+       </div>
+       <div><label class="block text-xs font-semibold mb-2">Expected Annual Return (%)</label> <input id="return-rate" type="number" placeholder="12" value="12" step="0.1" class="calc-input w-full">
+       </div>
+       <div class="calc-result">
+        <p class="text-xs uppercase tracking-widest" style="color:#D4AF37;">Total Investment</p>
+        <p id="result-invested" class="text-2xl font-bold mt-2">₦0</p>
+       </div>
+       <div class="calc-result">
+        <p class="text-xs uppercase tracking-widest" style="color:#D4AF37;">Projected Returns</p>
+        <p id="result-returns" class="text-2xl font-bold mt-2" style="color:#22c55e;">₦0</p>
+       </div>
+       <div class="calc-result">
+        <p class="text-xs uppercase tracking-widest" style="color:#D4AF37;">Total Value</p>
+        <p id="result-total" class="text-2xl font-bold mt-2" style="color:#D4AF37;">₦0</p>
+       </div>
+      </div>
+     </div><!-- Market Stats Table -->
+     <div class="rounded-2xl overflow-hidden border" style="background:#0d1528;border-color:rgba(255,255,255,0.06);">
+      <table class="w-full">
+       <thead>
+        <tr style="background:rgba(212,175,55,0.05);">
+         <th class="text-left px-4 py-3 text-xs font-semibold tracking-wider uppercase" style="color:#D4AF37;">Metric</th>
+         <th class="text-right px-4 py-3 text-xs font-semibold tracking-wider uppercase" style="color:#D4AF37;">Value</th>
+        </tr>
+       </thead>
+       <tbody>
+        <tr class="border-t" style="border-color:rgba(255,255,255,0.04);">
+         <td class="px-4 py-3 text-xs flex items-center gap-2"><i data-lucide="activity" style="width:14px;height:14px;color:#D4AF37;"></i>Trading Volume</td>
+         <td class="px-4 py-3 text-xs text-right font-medium">2.8B Shares</td>
+        </tr>
+        <tr class="border-t" style="border-color:rgba(255,255,255,0.04);">
+         <td class="px-4 py-3 text-xs flex items-center gap-2"><i data-lucide="trending-up" style="width:14px;height:14px;color:#D4AF37;"></i>Market Index</td>
+         <td class="px-4 py-3 text-xs text-right font-medium">5,384.92</td>
+        </tr>
+        <tr class="border-t" style="border-color:rgba(255,255,255,0.04);">
+         <td class="px-4 py-3 text-xs flex items-center gap-2"><i data-lucide="wallet" style="width:14px;height:14px;color:#D4AF37;"></i>Global Market Cap</td>
+         <td class="px-4 py-3 text-xs text-right font-medium">$112.5T</td>
+        </tr>
+        <tr class="border-t" style="border-color:rgba(255,255,255,0.04);">
+         <td class="px-4 py-3 text-xs flex items-center gap-2"><i data-lucide="zap" style="width:14px;height:14px;color:#D4AF37;"></i>Volatility Index</td>
+         <td class="px-4 py-3 text-xs text-right font-medium">14.85</td>
+        </tr>
+       </tbody>
+      </table>
+     </div>
+    </div>
+    <p class="text-xs font-semibold tracking-widest uppercase mb-4" style="color:#D4AF37;">Performance</p>
+    <h3 class="font-heading text-2xl font-bold mb-6">Stock Market Trends <span class="live-badge"></span> <span style="font-size:0.65rem;color:#D4AF37;margin-left:8px;vertical-align:middle;">LIVE</span></h3>
+    <div class="grid md:grid-cols-2 gap-6">
+     <!-- Top Gainers -->
+     <div class="rounded-2xl p-6 border" style="background:#0d1528;border-color:rgba(255,255,255,0.06);">
+      <h4 class="font-semibold text-sm mb-4">Top Gainers</h4>
+      <div id="gainers-list" class="space-y-3">
+       <div class="flex items-center justify-between p-3 rounded-lg" style="background:rgba(255,255,255,0.02);">
+        <div class="flex-1">
+         <p class="font-semibold text-xs">Google (GOOGL)</p>
+         <p class="text-xs mt-0.5" style="color:#6b7280;">Technology</p>
+        </div>
+        <div class="text-right">
+         <p class="font-semibold text-xs price">$--</p>
+         <p class="text-xs mt-0.5 change trend-up">--</p>
+        </div>
+       </div>
+       <div class="flex items-center justify-between p-3 rounded-lg" style="background:rgba(255,255,255,0.02);">
+        <div class="flex-1">
+         <p class="font-semibold text-xs">Microsoft (MSFT)</p>
+         <p class="text-xs mt-0.5" style="color:#6b7280;">Technology</p>
+        </div>
+        <div class="text-right">
+         <p class="font-semibold text-xs price">$--</p>
+         <p class="text-xs mt-0.5 change trend-up">--</p>
+        </div>
+       </div>
+       <div class="flex items-center justify-between p-3 rounded-lg" style="background:rgba(255,255,255,0.02);">
+        <div class="flex-1">
+         <p class="font-semibold text-xs">Apple (AAPL)</p>
+         <p class="text-xs mt-0.5" style="color:#6b7280;">Technology</p>
+        </div>
+        <div class="text-right">
+         <p class="font-semibold text-xs price">$--</p>
+         <p class="text-xs mt-0.5 change trend-up">--</p>
+        </div>
+       </div>
+       <div class="flex items-center justify-between p-3 rounded-lg" style="background:rgba(255,255,255,0.02);">
+        <div class="flex-1">
+         <p class="font-semibold text-xs">Amazon (AMZN)</p>
+         <p class="text-xs mt-0.5" style="color:#6b7280;">E-Commerce</p>
+        </div>
+        <div class="text-right">
+         <p class="font-semibold text-xs price">$--</p>
+         <p class="text-xs mt-0.5 change trend-up">--</p>
+        </div>
+       </div>
+      </div>
+     </div><!-- Top Losers -->
+     <div class="rounded-2xl p-6 border" style="background:#0d1528;border-color:rgba(255,255,255,0.06);">
+      <h4 class="font-semibold text-sm mb-4">Top Losers</h4>
+      <div id="losers-list" class="space-y-3">
+       <div class="flex items-center justify-between p-3 rounded-lg" style="background:rgba(255,255,255,0.02);">
+        <div class="flex-1">
+         <p class="font-semibold text-xs">Tesla (TSLA)</p>
+         <p class="text-xs mt-0.5" style="color:#6b7280;">Automotive</p>
+        </div>
+        <div class="text-right">
+         <p class="font-semibold text-xs price">$--</p>
+         <p class="text-xs mt-0.5 change trend-down">--</p>
+        </div>
+       </div>
+       <div class="flex items-center justify-between p-3 rounded-lg" style="background:rgba(255,255,255,0.02);">
+        <div class="flex-1">
+         <p class="font-semibold text-xs">Meta (META)</p>
+         <p class="text-xs mt-0.5" style="color:#6b7280;">Technology</p>
+        </div>
+        <div class="text-right">
+         <p class="font-semibold text-xs price">$--</p>
+         <p class="text-xs mt-0.5 change trend-down">--</p>
+        </div>
+       </div>
+       <div class="flex items-center justify-between p-3 rounded-lg" style="background:rgba(255,255,255,0.02);">
+        <div class="flex-1">
+         <p class="font-semibold text-xs">Netflix (NFLX)</p>
+         <p class="text-xs mt-0.5" style="color:#6b7280;">Entertainment</p>
+        </div>
+        <div class="text-right">
+         <p class="font-semibold text-xs price">$--</p>
+         <p class="text-xs mt-0.5 change trend-down">--</p>
+        </div>
+       </div>
+       <div class="flex items-center justify-between p-3 rounded-lg" style="background:rgba(255,255,255,0.02);">
+        <div class="flex-1">
+         <p class="font-semibold text-xs">Nvidia (NVDA)</p>
+         <p class="text-xs mt-0.5" style="color:#6b7280;">Technology</p>
+        </div>
+        <div class="text-right">
+         <p class="font-semibold text-xs price">$--</p>
+         <p class="text-xs mt-0.5 change trend-down">--</p>
+        </div>
+       </div>
+      </div>
+     </div>
+    </div>
+   </section>
+  </div><!-- Stats Bar -->
+  <section class="border-y" style="border-color:rgba(255,255,255,0.05);background:rgba(17,26,47,0.5);">
+   <div class="max-w-7xl mx-auto px-6 py-8 grid grid-cols-2 md:grid-cols-4 gap-6">
+    <div class="stat-card text-center transition-transform duration-300">
+     <p class="text-2xl md:text-3xl font-heading font-bold" style="color:#D4AF37;">₦35.5B</p>
+     <p class="text-xs mt-1" style="color:#6b7280;">Market Capitalization</p>
+    </div>
+    <div class="stat-card text-center transition-transform duration-300">
+     <p class="text-2xl md:text-3xl font-heading font-bold" style="color:#D4AF37;">887M+</p>
+     <p class="text-xs mt-1" style="color:#6b7280;">Shares Traded</p>
+    </div>
+    <div class="stat-card text-center transition-transform duration-300">
+     <p class="text-2xl md:text-3xl font-heading font-bold" style="color:#D4AF37;">53,436</p>
+     <p class="text-xs mt-1" style="color:#6b7280;">Transactions Daily</p>
+    </div>
+    <div class="stat-card text-center transition-transform duration-300">
+     <p class="text-2xl md:text-3xl font-heading font-bold" style="color:#D4AF37;">201,287</p>
+     <p class="text-xs mt-1" style="color:#6b7280;">Market Index Level</p>
+    </div>
    </div>
-  </div>
+  </section><!-- AI Advisor -->
+  <section id="advisor" class="py-24" style="background:rgba(29,43,79,0.3);">
+   <div class="max-w-7xl mx-auto px-6">
+    <p class="text-xs font-semibold tracking-widest uppercase mb-4" style="color:#D4AF37;">AI Assistant</p>
+    <h2 class="font-heading text-3xl md:text-4xl font-bold mb-12">Ask Our AI Investment Advisor</h2>
+    <div class="grid lg:grid-cols-3 gap-8">
+     <div class="lg:col-span-2 rounded-2xl p-8 border flex flex-col" style="background:#0d1528;border-color:rgba(255,255,255,0.06);height:500px;">
+      <div id="chat-messages" class="flex-1 space-y-4 mb-6 overflow-y-auto pr-2">
+       <div class="flex gap-3">
+        <div class="w-8 h-8 rounded-lg flex-shrink-0 flex items-center justify-center" style="background:rgba(212,175,55,0.15);"><i data-lucide="bot" style="width:16px;height:16px;color:#D4AF37;"></i>
+        </div>
+        <div class="rounded-xl px-4 py-3 text-sm" style="background:rgba(255,255,255,0.04);color:#d1d5db;">
+         Welcome! I'm your AI investment advisor. Ask me about market trends, portfolio strategies, or investment best practices.
+        </div>
+       </div>
+      </div>
+      <form id="chat-form" class="flex gap-3">
+       <input id="chat-input" type="text" placeholder="Ask about investing..." class="flex-1 rounded-xl px-4 py-3 text-sm border" style="background:rgba(255,255,255,0.04);border-color:rgba(255,255,255,0.08);color:#e8e8e8;"> <button type="submit" class="px-6 py-3 rounded-xl font-semibold text-sm transition-all hover:scale-105" style="background:rgba(212,175,55,0.2);color:#D4AF37;border:1px solid rgba(212,175,55,0.3);"><i data-lucide="send" style="width:16px;height:16px;"></i></button>
+      </form>
+     </div>
+     <div class="rounded-2xl p-8 border" style="background:#0d1528;border-color:rgba(255,255,255,0.06);">
+      <h3 class="font-semibold text-lg mb-6">Quick Topics</h3>
+      <div class="space-y-3">
+       <button class="w-full text-left px-4 py-3 rounded-lg text-sm transition-all hover:bg-white/5" style="background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.06);color:#e8e8e8;">Diversification Strategies</button> <button class="w-full text-left px-4 py-3 rounded-lg text-sm transition-all hover:bg-white/5" style="background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.06);color:#e8e8e8;">Beginner Investment Tips</button> <button class="w-full text-left px-4 py-3 rounded-lg text-sm transition-all hover:bg-white/5" style="background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.06);color:#e8e8e8;">Portfolio Rebalancing</button> <button class="w-full text-left px-4 py-3 rounded-lg text-sm transition-all hover:bg-white/5" style="background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.06);color:#e8e8e8;">Fixed Income Securities</button>
+      </div>
+     </div>
+    </div>
+   </div>
+  </section><!-- Contact / Footer -->
+  <footer id="contact" class="border-t" style="border-color:rgba(255,255,255,0.05);background:#070d1a;">
+   <div class="max-w-7xl mx-auto px-6 py-16">
+    <div class="grid md:grid-cols-4 gap-12">
+     <div>
+      <h4 class="font-semibold text-sm mb-4">Quick Links</h4>
+      <div class="space-y-2"><a href="#home" class="block text-sm transition-colors hover:text-white" style="color:#6b7280;">Home</a> <a href="#about" class="block text-sm transition-colors hover:text-white" style="color:#6b7280;">About Us</a> <a href="#services" class="block text-sm transition-colors hover:text-white" style="color:#6b7280;">Services</a> <a href="#market" class="block text-sm transition-colors hover:text-white" style="color:#6b7280;">Market Data</a>
+      </div>
+     </div>
+     <div>
+      <h4 class="font-semibold text-sm mb-4">Contact</h4>
+      <div class="space-y-3">
+       <div class="flex items-start gap-3">
+        <i data-lucide="map-pin" style="width:16px;height:16px;color:#D4AF37;flex-shrink:0;margin-top:2px;"></i>
+        <p id="footer-address" class="text-sm" style="color:#6b7280;">Reward House, 17B Oguntona Street, Gbagada Phase 1, Lagos</p>
+       </div>
+       <div class="flex items-start gap-3">
+        <i data-lucide="mail" style="width:16px;height:16px;color:#D4AF37;flex-shrink:0;margin-top:2px;"></i>
+        <p id="footer-email" class="text-sm" style="color:#6b7280;">info@rewardinvestments.com</p>
+       </div>
+       <div class="flex items-start gap-3">
+        <i data-lucide="phone" style="width:16px;height:16px;color:#D4AF37;flex-shrink:0;margin-top:2px;"></i>
+        <p class="text-sm" style="color:#6b7280;">+234 (0) 1 234 5678</p>
+       </div>
+      </div>
+     </div>
+    </div>
+    <div class="mt-12 pt-8 border-t text-center" style="border-color:rgba(255,255,255,0.05);">
+     <div class="mb-8">
+      <div class="flex items-center justify-center gap-3 mb-4">
+       <img src="https://i.ibb.co/sd5nJpKy/file-00000000708c71fd9f18971a3b9a32c8.png" alt="Reward Investments Logo" style="width:36px;height:36px;object-fit:contain;" loading="lazy" onerror="console.error('Logo failed to load:', this.src); this.style.background='#D4AF37';this.style.width='36px';this.style.height='36px';this.style.borderRadius='6px';"> <span class="font-heading font-bold text-lg" style="color:#D4AF37;">Reward Investments</span>
+      </div>
+      <p class="text-sm leading-relaxed mb-6 max-w-md mx-auto" style="color:#6b7280;">Professional capital market services since establishment. SEC regulated broker-dealer in Nigeria.</p>
+      <div class="flex gap-4 justify-center"><a href="https://www.facebook.com/rewardinvestments" target="_blank" rel="noopener noreferrer" class="w-9 h-9 rounded-lg flex items-center justify-center transition-all hover:scale-110" style="background:rgba(212,175,55,0.1);color:#D4AF37;"><i data-lucide="facebook" style="width:18px;height:18px;"></i></a> <a href="https://x.com/rewardinvest" target="_blank" rel="noopener noreferrer" class="w-9 h-9 rounded-lg flex items-center justify-center transition-all hover:scale-110" style="background:rgba(212,175,55,0.1);color:#D4AF37;"><i data-lucide="twitter" style="width:18px;height:18px;"></i></a> <a href="https://www.instagram.com/rewardinvest?igsh=MTJoczNheGkxNDF6MA==" target="_blank" rel="noopener noreferrer" class="w-9 h-9 rounded-lg flex items-center justify-center transition-all hover:scale-110" style="background:rgba(212,175,55,0.1);color:#D4AF37;"><i data-lucide="instagram" style="width:18px;height:18px;"></i></a>
+      </div>
+     </div>
+     <p class="text-xs" style="color:#4b5563;">© 2025 Reward Investments &amp; Services Limited. All rights reserved.</p>
+    </div>
+   </div>
+  </footer>
   <script>
-// Engaging knowledge base with interesting responses
-const knowledgeBase = {
-  newToInvesting: {
-    triggers: ['new to investing', 'i\\'m new', 'beginner', 'first time', 'never invested', 'just starting'],
-    response: `🎉 Welcome to the club! You're about to join millions of successful wealth-builders.\\n\\n**The Beginner's Wealth Formula:**\\n\\n📍 **Step 1: The Mindset** — You need ₦10k, not ₦1M. Start anyway!\\n\\n📍 **Step 2: Learn One Thing Well** — Stocks? Dividends? Mutual funds? Pick one.\\n\\n📍 **Step 3: Open Your Account** — Takes 30 minutes online. That's it.\\n\\n📍 **Step 4: Buy Your First Share** — Feel that rush? That's the beginning of wealth-building! 🚀\\n\\n📍 **Step 5: Stay Consistent** — Invest ₦5k monthly for 10 years and watch magic happen.\\n\\n**The Compound Growth Reality:**\\nInvest ₦5,000/month at 15% annual growth:\\n• After 5 years: ₦411,000\\n• After 10 years: ₦1,247,000\\n• After 20 years: ₦5,891,000\\n\\nThat's not luck. That's just time + consistency + smart investing.\\n\\n**What excites you most — passive dividend income, growth potential, or just beating inflation?**`
-  },
-  quickWins: {
-    triggers: ['quick wins', 'fast money', 'get rich', 'short term', 'easy profit'],
-    response: `⚡ I love your energy! But here's the plot twist...\\n\\n**The "quick win" mentality is actually backwards.** 🔄\\n\\nThe wealthiest investors aren't the ones trading daily. They're the boring ones who:\\n• Bought GTBank 10 years ago and forgot about it\\n• Reinvested dividends quietly\\n• Let compound growth do the work\\n\\n**Here's What ACTUALLY Works:**\\n\\n✅ **Consistent small investments** beat sporadic large ones\\n✅ **Holding 5+ years** beats timing the market\\n✅ **Dividend reinvestment** accelerates everything\\n✅ **Patience** is the unfair advantage\\n\\n**The Real "Quick Win":**\\nThe fastest wealth isn't made in months. It's made in decades of boring, consistent investing.\\n\\n**Fun fact:** If you started investing ₦1,000/month when you turned 25, by 50 you'd likely have 2-5 MILLION naira. 🤯\\n\\n**So here's my challenge:** What if the "quick win" is actually making the commitment TODAY to invest consistently for the next 10 years?\\n\\n**Sound good?**`
-  },
-  explainBasics: {
-    triggers: ['explain basics', 'basics', 'fundamentals', 'explain', 'help me understand', 'what is'],
-    response: `📚 Let's break the investing puzzle into easy pieces!\\n\\n**What IS Investing?**\\nYou give money → It grows → You get MORE back. That simple.\\n\\n**The Three Power Players:**\\n\\n🏢 **STOCKS** — Own a piece of real companies\\n   • You profit when company value grows\\n   • Companies share profits (dividends) with you\\n   • Example: Own GTBank stock → Get dividends quarterly\\n\\n🏦 **BONDS** — Lend money to companies/government\\n   • They pay you interest regularly\\n   • Lower risk, steadier income\\n   • Example: FGN Bond pays you ₦100k/year on ₦1M investment\\n\\n👨‍💼 **MUTUAL FUNDS** — Professionals manage your money\\n   • You get instant diversification\\n   • Zero stress, pure returns\\n   • Perfect for beginners\\n\\n**Why Does Investing Matter?**\\n\\n🔥 Your bank savings LOSE value (inflation eats it)\\n📈 Stocks BEAT inflation and grow your wealth\\n⏰ Time = Your secret weapon (compound growth)\\n💎 Start at 25 vs 35? Your money could be 3x larger by retirement\\n\\n**The Golden Rule:** Don't put all eggs in one basket. Spread investments across different companies and sectors.\\n\\n**Which type interests you most?** Stocks for growth, bonds for stability, or mutual funds for simplicity?`
-  },
-  readyToInvest: {
-    triggers: ['ready to invest', 'i\\'m ready', 'want to start', 'open account', 'let\\'s go'],
-    response: `💪 YES! This is it! Let's turn dreams into reality.\\n\\n**Your Action Plan (Next 30 Days):**\\n\\n⏱️ **THIS WEEK:**\\n→ Define your "Why" (Retirement? Car? House?)\\n→ Decide your monthly investment amount\\n→ Check your risk comfort (nervous about ups/downs?)\\n\\n⏱️ **NEXT WEEK:**\\n→ Research 2-3 stockbrokers (or download a trading app)\\n→ Complete your KYC (Know Your Customer verification)\\n→ Fund your brokerage account\\n\\n⏱️ **WEEK 3:**\\n→ Buy your first stock or mutual fund\\n→ Celebrate! 🎉 You're officially an investor\\n\\n⏱️ **WEEK 4:**\\n→ Plan your next investments\\n→ Set up automatic monthly transfers\\n→ Join communities (online investor groups)\\n\\n**Pro Tips From Successful Investors:**\\n\\n💡 Start with companies you UNDERSTAND\\n💡 Invest the same amount EVERY month (this is called cost averaging)\\n💡 DON'T panic sell when prices dip (that's when winners hold)\\n💡 REINVEST your dividends (magic happens here)\\n💡 Review your portfolio quarterly, not daily\\n\\n**Reward Investments & Services Ltd** will guide you through every single step — from picking your first stock to building a ₦10M portfolio.\\n\\n**Famous investing quote:** "The best time to plant a tree was 20 years ago. The second best time is TODAY." 🌱\\n\\n**What's holding you back? Let's solve it together!**`
-  },
-  startInvesting: {
-    triggers: ['how do i start', 'how to start', 'start investing', 'get started'],
-    response: `🚀 Perfect timing! Starting is easier than you think.\\n\\n**Your 3-Step Starter Guide:**\\n\\n**STEP 1: Understand Your Goal** (15 mins)\\n• Investing for retirement? ✅\\n• Building a home fund? ✅\\n• Creating passive income? ✅\\n• Just beating inflation? ✅\\nEach path is slightly different. Know yours first.\\n\\n**STEP 2: Choose Your Investment Type** (30 mins)\\n• Conservative? → Bonds + Mutual Funds\\n• Balanced? → Mix of stocks + bonds\\n• Growth-focused? → Individual stocks + growth funds\\n\\n**STEP 3: Open an Account** (1 hour)\\n• Visit a stockbroker or download their app\\n• Complete KYC (ID + proof of address)\\n• Make your first deposit\\n• BUY YOUR FIRST SHARE\\n\\n**Questions? I've got answers:**\\n• "How much should I start with?" — Whatever you can afford. ₦5k/month beats ₦0 every time.\\n• "Which stocks should I buy?" — Blue-chips like GTBank, Nestle, Dangote are beginner-friendly.\\n• "Will I lose money?" — Short-term? Maybe. Long-term (5+ years)? Historically, no.\\n• "When should I sell?" — Most successful investors: Almost never.\\n\\n**The bottom line:** You've got everything you need to start. The only thing missing is action. 💪\\n\\n**Ready to dive deeper into any of these steps?**`
-  },
-  stocks: {
-    triggers: ['what are stocks', 'stocks', 'shares', 'equity', 'buy stock', 'stock market'],
-    response: `📈 Let me make stocks SUPER simple.\\n\\n**The Coffee Shop Analogy:**\\nImagine your favorite coffee shop. It's worth ₦10M total. The owner cuts it into 10,000 equal pieces (shares). Each piece costs ₦1,000. That's a stock! 🎯\\n\\nWhen you buy 1 share (₦1,000), you own 0.01% of that coffee shop.\\n\\n**Why Own Stocks?**\\n\\n💰 **Reason 1: Growth**\\n• Coffee shop becomes more valuable\\n• Your share becomes worth ₦1,500, ₦2,000, ₦3,000\\n• You sell for profit (capital gains)\\n\\n💰 **Reason 2: Income**\\n• Coffee shop makes ₦500k profit monthly\\n• Owner shares ₦50k with all shareholders\\n• You get ₦500 dividend (0.01% of profit)\\n• This happens quarterly!\\n\\n**How Stock Market Works:**\\nThousands of people buying/selling shares creates a \"market.\" In Nigeria, it's the **Nigerian Exchange (NGX)** — 150+ companies listed.\\n\\n**Real Examples:**\\n• GTBank stock: Currently trading at ₦37/share\\n• Nestlé: Trading at ₦780/share\\n• Dangote: Trading at ₦2,100/share\\n\\n**Beginner Question: Which do I pick?**\\nStart with recognizable companies you trust. Ones whose products you use. That's your first filter! 👍\\n\\n**Want to learn which stocks are worth buying right now?**`
-  },
-  dividends: {
-    triggers: ['dividend', 'dividends', 'how do dividends work', 'passive income', 'dividend payment'],
-    response: `💰 Dividends are literally money that falls from the sky. Let me explain.\\n\\n**What's a Dividend?**\\nIt's the company saying: "Hey shareholder, thanks for believing in us. Here's your share of the profits!" 🎁\\n\\n**Real Example:**\\n📊 GTBank makes ₦50 BILLION profit this year\\n👥 It has 1 BILLION shares outstanding\\n💳 Pays out ₦10 BILLION to shareholders (20% of profit)\\n📈 That's ₦10 dividend per share!\\n\\n**You Own 100 Shares? You Get:**\\n100 shares × ₦10 = **₦1,000 PURE PROFIT**\\n\\nAnd you didn't do ANYTHING. The company made money, you shared it. 🤷‍♂️\\n\\n**Dividend Timeline:**\\n• Jan: Company announces dividend\\n• Feb: You get paid directly to your account\\n• Mar: Next dividend already coming\\n• Repeat forever (or until you sell)\\n\\n**The MAGIC Part - Dividend Reinvestment:**\\nWhat if you didn't take your ₦1,000? Instead, you bought 10 MORE shares with it?\\n\\nNow next dividend you get: ₦1,100\\n→ Buy 11 more shares\\n→ Next dividend: ₦1,210\\n→ Buy 12 more shares\\n→ Compound EXPLODES! 🚀\\n\\n**Over 20 years:**\\n• Without reinvestment: ₦200k total\\n• With reinvestment: ₦1.2M total\\n\\n**That's 6X MORE MONEY for doing nothing different!**\\n\\n**The Wealthy Investor's Secret:**\\nDividend stocks = Money machines. Buy good ones, reinvest profits, and become rich while sleeping. 😴💰\\n\\n**Want to know which stocks pay the BEST dividends?**`
-  },
-  portfolio: {
-    triggers: ['portfolio', 'my portfolio', 'build portfolio', 'portfolio grow', 'investment portfolio'],
-    response: `🎯 Think of your portfolio like a championship sports team. You don't need all superstars, you need BALANCE.\\n\\n**What's a Portfolio?**\\nIt's your entire collection of investments working together to make you rich. Stocks + bonds + funds = Portfolio.\\n\\n**Portfolio Example for Beginners (₦50k/month budget):**\\n\\n🏆 **Team Composition:**\\n• 40% Growth Stocks (GTBank, Nestle, Dangote)\\n• 30% Dividend Stocks (reliable income)\\n• 20% Bonds (safety net)\\n• 10% Mutual Funds (for variety)\\n\\n**Real Numbers with ₦50k/month:**\\n• ₦20k → Growth stocks\\n• ₦15k → Dividend stocks\\n• ₦10k → Bonds\\n• ₦5k → Mutual funds\\n\\n**How Your Portfolio Grows (5-Year Projection):**\\n\\nYear 1: ₦600k invested → Grows to ₦690k\\nYear 2: ₦1.2M invested → Grows to ₦1.43M\\nYear 3: ₦1.8M invested → Grows to ₦2.25M\\nYear 4: ₦2.4M invested → Grows to ₦3.18M\\nYear 5: ₦3M invested → Grows to ₦4.32M\\n\\n**You invested ₦3M. Your portfolio is worth ₦4.32M. That's a ₦1.32M GAIN!** 🎉\\n\\n**Portfolio Management Rules:**\\n✅ Diversify (don't put all in one stock)\\n✅ Rebalance quarterly (keep your 40-30-20-10 ratio)\\n✅ Reinvest dividends (let compound growth work)\\n✅ Add money regularly (₦50k/month or whatever you can)\\n✅ Don't panic sell (market dips are buying opportunities!)\\n\\n**The Magic Timeline:**\\n• 1-2 years: You're getting comfortable\\n• 3-5 years: You start seeing real growth\\n• 5-10 years: This is where compound magic EXPLODES\\n• 10+ years: You're looking at life-changing wealth\\n\\n**Your mission:** Build a portfolio, stay consistent, and let time do the heavy lifting.\\n\\n**Ready to design your personal portfolio?**`
-  },
-  nigerianMarket: {
-    triggers: ['nigerian market', 'ngx', 'nigerian exchange', 'nse', 'nigerian stock', 'lagos exchange'],
-    response: `🇳🇬 Welcome to the Nigerian Exchange — Africa's POWERHOUSE investment hub!\\n\\n**Quick Facts That'll Blow Your Mind:**\\n\\n📊 150+ Companies Listed\\n💰 Over ₦100 TRILLION market value\\n📈 Average 26% annual returns (historically)\\n🌍 One of Africa's TOP 3 exchanges\\n\\n**The Big Players (Sectors):**\\n\\n🏦 **BANKING** (The Money Makers)\\n• GTBank → ₦37/share (Dividend king)\\n• Zenith Bank → ₦34/share\\n• Access Bank → ₦12/share\\n\\n🛒 **CONSUMER GOODS** (Everyday Companies)\\n• Nestlé Nigeria → ₦780/share\\n• Unilever → ₦12/share\\n• BUA Foods → Growing fast!\\n\\n⛽ **OIL & GAS** (The Big Money)\\n• Seplat → ₦1,400+/share\\n• TotalEnergies → Strong dividends\\n\\n🏭 **INDUSTRIAL** (Building Nigeria)\\n• Dangote Cement → ₦2,100/share (HUGE)\\n• BUA Cement → Rising star\\n\\n**Why NOW is the Time to Invest in Nigeria:**\\n\\n✨ Growing economy (5-6% GDP growth)\\n✨ Young population (millennial spending!)\\n✨ Tech boom (fintech revolution)\\n✨ Infrastructure projects (creating wealth)\\n✨ Dividend payments (Nigerians LOVE sharing profits)\\n\\n**Real Investor Stories:**\\n• Bought GTBank at ₦15 in 2012\\n• It's now ₦37 (140% growth!)\\n• PLUS ₦200+ in dividends along the way\\n• That's generational wealth right there! 🚀\\n\\n**The Nigerian Exchange Advantage:**\\n→ Your money stays invested in Nigeria's growth\\n→ Support local businesses\\n→ Get paid in Naira\\n→ Be part of building Africa's future\\n\\n**Hot Sectors to Watch (2024-2025):**\\n• Technology & Fintech (future economy!)\\n• Renewable Energy (going green!)\\n• e-Commerce (digital revolution!)\\n\\n**Your First Question Should Be:** "Which sector excites me most, and which companies in that sector should I research?"\\n\\n**Ready to become a Nigerian market insider?**`
-  },
-  diversification: {
-    triggers: ['diversif', 'spread risk', 'don\\'t put all eggs', 'portfolio mix', 'reduce risk', 'asset allocation'],
-    response: `🎯 Diversification is the GOLDEN RULE of investing. Let me show you why.\\n\\n**The Mistake That Kills Portfolios:**\\nPutting all money in ONE stock.\\n\\nExample: You invest ₦500k in just Dangote.\\n• Good scenario: It doubles to ₦1M 🎉\\n• Bad scenario: It drops 50% to ₦250k 😰\\n\\nWith diversification, these swings smooth out.\\n\\n**How Successful Investors Diversify:**\\n\\n🔄 **ACROSS SECTORS** (Don't depend on one industry)\\n• Banking (stable)\\n• Consumer goods (steady)\\n• Oil & gas (cyclical)\\n• Tech (growth)\\n\\nIf banking has a bad year, your other sectors protect you! ✅\\n\\n🔄 **ACROSS ASSET TYPES**\\n• 60% Stocks (growth)\\n• 25% Bonds (safety)\\n• 10% Mutual Funds (ease)\\n• 5% Money Market (liquidity)\\n\\n🔄 **ACROSS TIME** (Dollar-Cost Averaging)\\n• Invest ₦10k EVERY month (not ₦120k once yearly)\\n• Buy high, buy low, average price decreases\\n• Removes emotion from investing\\n\\n**Real-World Protection:**\\n\\nScenario: ₦120k/year investment\\n\\n❌ **NOT Diversified:**\\n• All ₦120k in one bank stock\\n• Stock crashes 40%\\n• Your ₦120k becomes ₦72k\\n• You panic and sell (WORST move)\\n\\n✅ **Diversified:**\\n• ₦40k banking, ₦40k consumer goods, ₦40k bonds\\n• One sector crashes 40%, others stay stable\\n• Your ₦120k only drops to ₦110k\\n• You HOLD and wait for recovery\\n• Market bounces back, you're golden\\n\\n**The Formula That Works:**\\n→ Never put more than 20% in ONE stock\\n→ Spread across at least 5 different companies\\n→ Mix asset types\\n→ Invest consistently\\n→ Sleep peacefully at night\\n\\n**Warren Buffett's Secret:** \"Diversification is for people who don't know what they're doing.\" But he's a GENIUS. For us? Diversify! 😄\\n\\n**Your Diversification Homework:** Can you create a mix that feels good to you?**`
-  },
-  risk: {
-    triggers: ['risk', 'risky', 'lose money', 'is it safe', 'guaranteed', 'market crash', 'fall'],
-    response: `⚖️ Real talk about risk. Let's separate FACTS from FEAR.\\n\\n**The Honest Truth:**\\nYES, you can lose money investing. Markets go up AND down.\\n\\nBUT — this is crucial:\\n\\n📊 **Historically:**\\n• Nigerian market UP 26% annually (average)\\n• Over 10-year periods: NEVER negative (long-term)\\n• Short-term (1-2 years): Can dip 10-20%\\n\\n**So the question isn't "Will market ever drop?"**\\n**It's "Can you WAIT for it to recover?"**\\n\\n**Risk Levels Explained:**\\n\\n🟢 **LOW RISK** — Bonds, Money Market Funds\\n• Safe, predictable returns\\n• 8-12% annually\\n• BUT: Beaten by inflation over time\\n\\n🟡 **MEDIUM RISK** — Dividend Stocks, Balanced Funds\\n• Good growth + income\\n• 12-18% annually\\n• Stomach: Small dips, big gains\\n\\n🔴 **HIGH RISK** — Growth Stocks, Tech Stocks\\n• MAXIMUM growth potential\\n• 20%+ annually (when good)\\n• Stomach: Bigger swings, bigger rewards\\n\\n**Real Risk Examples:**\\n\\n📉 **2020 Market Crash (COVID):**\\n• Market dropped 40%\\n• Investors who SOLD: Lost forever\\n• Investors who HELD: Recovered + gained 100% by 2021\\n\\n💰 **The Cost of NOT Investing:**\\n• Inflation at 8% annually\\n• Your ₦1M savings becomes ₦920k in real value (next year)\\n• In 10 years? ₦463k value\\n• THAT'S the biggest risk! 😱\\n\\n**How Professional Investors Manage Risk:**\\n✅ Diversify (don't put eggs in one basket)\\n✅ Start small (₦5k-₦10k initially)\\n✅ Invest for 5+ years (give it time)\\n✅ Reinvest dividends (compound growth)\\n✅ Don't check daily (kills emotion)\\n✅ Have emergency fund SEPARATE (6 months expenses)\\n\\n**The Truth:** Investing HAS risk. Not investing? BIGGER risk (inflation destroys your savings).\\n\\n**The Smart Move:** Accept small risk now to avoid BIG risk later.\\n\\n**What's your comfort level with market ups and downs?**`
-  },
-  thanks: {
-    triggers: ['thank', 'thanks', 'appreciate', 'helpful', 'awesome', 'great', 'love this'],
-    response: `You're SO welcome! 🎉\\n\\n**Here's the thing:** The fact that you're asking questions puts you in the top 10% of Nigerians when it comes to financial literacy. That's incredible!\\n\\n**Remember this:**\\n→ Investing isn't complicated, it just feels that way at first\\n→ The best portfolio is the one you START\\n→ Every millionaire started with ₦1,000\\n→ Your future self will thank your current self for starting TODAY\\n\\n**Next Steps:**\\n1. Pick ONE thing you learned today\\n2. Research it for 30 minutes\\n3. Take ONE action (open account, buy first stock, whatever)\\n4. Come back and tell me how it goes\\n\\nYou've got this! 💪\\n\\n**Questions anytime. Reward Investments & Services Ltd has your back.** 🚀`
-  }
-};
+  // Default config
+  const defaultConfig = {
+    background_color: '#070d1a',
+    surface_color: '#0d1528',
+    text_color: '#e8e8e8',
+    primary_action_color: '#D4AF37',
+    secondary_action_color: '#6b7280',
+    font_family: 'Playfair Display',
+    font_size: 16,
+    hero_title: 'Creating Wealth Through Intelligent Investing',
+    hero_subtitle: 'Reward Investments & Services Limited is a SEC regulated broker-dealer providing professional capital market services in Nigeria.',
+    services_title: 'Our Investment Services',
+    contact_address: 'Reward House, 17B Oguntona Street, Gbagada Phase 1, Lagos',
+    contact_email: 'info@rewardinvestments.com'
+  };
 
-const fallbackResponses = [
-  `That's a fresh question! 🤔\\n\\nWhile that's outside my specialty, here's what I know: Every question brings you closer to financial wisdom.\\n\\nHow about we explore these proven wealth-building topics:\\n\\n• 📈 Stocks and how to pick winners\\n• 💰 Dividends (the gift that keeps giving)\\n• 📊 Building a balanced portfolio\\n• 🇳🇬 Nigerian Exchange opportunities\\n• ⚖️ Managing investment risk\\n\\nWhich catches your interest?`,
-  `Great curiosity! 🌟 That question shows you're thinking like an investor already!\\n\\nLet me redirect to where I can create the most VALUE for you. I'm best at helping you understand:\\n\\n• Getting started with your first investment\\n• Which stocks are beginner-friendly\\n• How compound growth can change your life\\n• Nigerian market opportunities\\n• Risk management strategies\\n\\nPick one and let's dive deep! 🚀`,
-  `I LOVE that you're asking! It means your mind is active and ready to learn. 🧠\\n\\nHere's how I can help you BEST:\\n\\n→ Explain why ₦50k/month beats ₦1M yearly\\n→ Show you stocks that pay dividends (passive income!)\\n→ Build your wealth strategy\\n→ Navigate the Nigerian exchange\\n→ Demystify portfolio management\\n\\nWhat's your biggest financial goal right now?`
-];
+  // Live market data service
+  const API_KEY = '1DXNKCX3S6XJVDV7';
+  const stockSymbols = ['GOOGL', 'MSFT', 'AAPL', 'AMZN', 'TSLA', 'META', 'NFLX', 'NVDA'];
 
-function getAIResponse(message) {
-  const lower = message.toLowerCase().trim();
-  for (const [key, data] of Object.entries(knowledgeBase)) {
-    for (const trigger of data.triggers) {
-      if (lower.includes(trigger)) return data.response;
+  async function fetchStockData(symbol) {
+    try {
+      const response = await fetch(`https://www.alphavantage.co/query?function=GLOBAL_QUOTE&symbol=${symbol}&apikey=${API_KEY}`);
+      const data = await response.json();
+      return data['Global Quote'] || {};
+    } catch (error) {
+      console.error(`Error fetching ${symbol}:`, error);
+      return {};
     }
   }
-  return fallbackResponses[Math.floor(Math.random() * fallbackResponses.length)];
-}
 
-function formatMessage(text) {
-  return text
-    .replace(/\*\*(.+?)\*\*/g, '<strong style="color:#6ee7b7;">$1</strong>')
-    .replace(/\n/g, '<br>')
-    .replace(/• /g, '<span style="color:#10b981;">•</span> ')
-    .replace(/→ /g, '<span style="color:#10b981; margin-right: 4px;">→</span>');
-}
+  async function updateLiveMarketData() {
+    // Update gainers (first 4 stocks)
+    const gainerRows = document.querySelectorAll('#gainers-list > div');
+    for (let i = 0; i < Math.min(gainerRows.length, 4); i++) {
+      const data = await fetchStockData(stockSymbols[i]);
+      if (data['05. price']) {
+        const price = parseFloat(data['05. price']);
+        const change = parseFloat(data['10. change percent'] || 0);
+        gainerRows[i].querySelector('.price').textContent = '$' + price.toFixed(2);
+        const changeEl = gainerRows[i].querySelector('.change');
+        changeEl.textContent = (change >= 0 ? '+' : '') + change.toFixed(2) + '%';
+        changeEl.style.color = change >= 0 ? '#22c55e' : '#ef4444';
+      }
+    }
 
-function addMessage(text, isUser) {
-  const chat = document.getElementById('chat-area');
-  const div = document.createElement('div');
-  div.className = 'msg-animate flex gap-3 ' + (isUser ? 'justify-end' : '') + ' max-w-2xl ' + (isUser ? 'ml-auto' : '');
-  if (isUser) {
-    div.innerHTML = `<div class="rounded-2xl rounded-tr-md px-4 py-3" style="background: linear-gradient(135deg, #10b981, #059669); box-shadow: 0 4px 12px rgba(16,185,129,0.2);">
-      <p class="text-sm text-white leading-relaxed">${text}</p></div>`;
-  } else {
-    div.innerHTML = `<div class="w-8 h-8 rounded-lg flex-shrink-0 flex items-center justify-center mt-1" style="background: linear-gradient(135deg, #10b981, #059669);">
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 7 13.5 15.5 8.5 10.5 2 17"></polyline><polyline points="16 7 22 7 22 13"></polyline></svg>
-    </div>
-    <div class="rounded-2xl rounded-tl-md px-4 py-3" style="background: #12263a; border: 1px solid rgba(16,185,129,0.12);">
-      <p class="text-sm leading-relaxed" style="color: #d1e3dd;">${formatMessage(text)}</p></div>`;
+    // Update losers (last 4 stocks)
+    const loserRows = document.querySelectorAll('#losers-list > div');
+    for (let i = 4; i < Math.min(stockSymbols.length, 8); i++) {
+      const data = await fetchStockData(stockSymbols[i]);
+      if (data['05. price']) {
+        const price = parseFloat(data['05. price']);
+        const change = parseFloat(data['10. change percent'] || 0);
+        loserRows[i - 4].querySelector('.price').textContent = '$' + price.toFixed(2);
+        const changeEl = loserRows[i - 4].querySelector('.change');
+        changeEl.textContent = (change >= 0 ? '+' : '') + change.toFixed(2) + '%';
+        changeEl.style.color = change >= 0 ? '#22c55e' : '#ef4444';
+      }
+    }
   }
-  chat.appendChild(div);
-  chat.scrollTop = chat.scrollHeight;
-}
 
-function showTyping() {
-  const chat = document.getElementById('chat-area');
-  const div = document.createElement('div');
-  div.id = 'typing-indicator';
-  div.className = 'msg-animate flex gap-3';
-  div.innerHTML = `<div class="w-8 h-8 rounded-lg flex-shrink-0 flex items-center justify-center" style="background: linear-gradient(135deg, #10b981, #059669);">
-    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 7 13.5 15.5 8.5 10.5 2 17"></polyline><polyline points="16 7 22 7 22 13"></polyline></svg>
-  </div>
-  <div class="rounded-2xl rounded-tl-md px-4 py-3 flex items-center gap-1.5" style="background: #12263a; border: 1px solid rgba(16,185,129,0.12);">
-    <div class="typing-dot w-2 h-2 rounded-full" style="background: #10b981;"></div>
-    <div class="typing-dot w-2 h-2 rounded-full" style="background: #10b981;"></div>
-    <div class="typing-dot w-2 h-2 rounded-full" style="background: #10b981;"></div>
-  </div>`;
-  chat.appendChild(div);
-  chat.scrollTop = chat.scrollHeight;
-}
+  // Initial load and refresh every 5 minutes
+  updateLiveMarketData();
+  setInterval(updateLiveMarketData, 300000);
 
-function removeTyping() {
-  const el = document.getElementById('typing-indicator');
-  if (el) el.remove();
-}
+  function applyConfig(config) {
+    const c = { ...defaultConfig, ...config };
+    const app = document.getElementById('app');
+    app.style.background = c.background_color;
+    app.style.color = c.text_color;
 
-function sendMessage(text) {
-  if (!text.trim()) return;
-  const sug = document.getElementById('suggestions');
-  if (sug) sug.style.display = 'none';
+    const heroEl = document.getElementById('hero-title');
+    if (heroEl) {
+      const words = (c.hero_title || defaultConfig.hero_title).split(' ');
+      const lastTwo = words.slice(-2).join(' ');
+      const rest = words.slice(0, -2).join(' ');
+      heroEl.innerHTML = rest + ' <span class="gold-shimmer">' + lastTwo + '</span>';
+    }
+    const subEl = document.getElementById('hero-subtitle');
+    if (subEl) subEl.textContent = c.hero_subtitle || defaultConfig.hero_subtitle;
 
-  addMessage(text, true);
-  showTyping();
+    const svcEl = document.getElementById('services-heading');
+    if (svcEl) svcEl.textContent = c.services_title || defaultConfig.services_title;
 
-  const delay = 600 + Math.random() * 1000;
-  setTimeout(() => {
-    removeTyping();
-    addMessage(getAIResponse(text), false);
-  }, delay);
-}
+    const addrEl = document.getElementById('footer-address');
+    if (addrEl) addrEl.textContent = c.contact_address || defaultConfig.contact_address;
 
-function sendSuggestion(btn) {
-  sendMessage(btn.textContent);
-}
+    const emailEl = document.getElementById('footer-email');
+    if (emailEl) emailEl.textContent = c.contact_email || defaultConfig.contact_email;
 
-document.getElementById('chat-form').addEventListener('submit', function(e) {
-  e.preventDefault();
-  const input = document.getElementById('user-input');
-  sendMessage(input.value);
-  input.value = '';
-  input.style.height = 'auto';
-});
+    const font = c.font_family || defaultConfig.font_family;
+    document.querySelectorAll('.font-heading').forEach(el => {
+      el.style.fontFamily = `${font}, Playfair Display, serif`;
+    });
+  }
 
-document.getElementById('user-input').addEventListener('input', function() {
-  this.style.height = 'auto';
-  this.style.height = Math.min(this.scrollHeight, 120) + 'px';
-});
-
-// Element SDK Init
-const defaultConfig = {
-  assistant_name: 'Reward Wealth AI'
-};
-
-function applyConfig(config) {
-  const name = config.assistant_name || defaultConfig.assistant_name;
-  document.getElementById('header-name').textContent = name;
-}
-
-if (window.elementSdk) {
   window.elementSdk.init({
     defaultConfig,
-    onConfigChange: async (config) => { applyConfig(config); },
+    onConfigChange: async (config) => applyConfig(config),
     mapToCapabilities: (config) => ({
-      recolorables: [],
+      recolorables: [
+        { get: () => config.background_color || defaultConfig.background_color, set: (v) => { config.background_color = v; window.elementSdk.setConfig({ background_color: v }); } },
+        { get: () => config.surface_color || defaultConfig.surface_color, set: (v) => { config.surface_color = v; window.elementSdk.setConfig({ surface_color: v }); } },
+        { get: () => config.text_color || defaultConfig.text_color, set: (v) => { config.text_color = v; window.elementSdk.setConfig({ text_color: v }); } },
+        { get: () => config.primary_action_color || defaultConfig.primary_action_color, set: (v) => { config.primary_action_color = v; window.elementSdk.setConfig({ primary_action_color: v }); } },
+        { get: () => config.secondary_action_color || defaultConfig.secondary_action_color, set: (v) => { config.secondary_action_color = v; window.elementSdk.setConfig({ secondary_action_color: v }); } }
+      ],
       borderables: [],
-      fontEditable: undefined,
-      fontSizeable: undefined
+      fontEditable: {
+        get: () => config.font_family || defaultConfig.font_family,
+        set: (v) => { config.font_family = v; window.elementSdk.setConfig({ font_family: v }); }
+      },
+      fontSizeable: {
+        get: () => config.font_size || defaultConfig.font_size,
+        set: (v) => { config.font_size = v; window.elementSdk.setConfig({ font_size: v }); }
+      }
     }),
     mapToEditPanelValues: (config) => new Map([
-      ['assistant_name', config.assistant_name || defaultConfig.assistant_name]
+      ['hero_title', config.hero_title || defaultConfig.hero_title],
+      ['hero_subtitle', config.hero_subtitle || defaultConfig.hero_subtitle],
+      ['services_title', config.services_title || defaultConfig.services_title],
+      ['contact_address', config.contact_address || defaultConfig.contact_address],
+      ['contact_email', config.contact_email || defaultConfig.contact_email]
     ])
   });
-}
 
-lucide.createIcons();
+  document.getElementById('mobile-toggle').addEventListener('click', () => {
+    document.getElementById('mobile-menu').classList.toggle('hidden');
+  });
+
+  // Chat demo
+  const demoResponses = [
+    "Diversification is key — spread investments across different sectors, asset classes, and geographies. Aim for a balanced mix of growth and defensive positions.",
+    "For beginners, I'd recommend starting with blue-chip stocks from established sectors like technology, finance, and consumer goods.",
+    "Portfolio rebalancing should ideally happen quarterly. This maintains your target asset allocation as market conditions shift over time.",
+    "Fixed income securities provide steady returns with lower risk compared to equities. Current global yields are quite attractive.",
+    "The market has shown resilience. Key indicators to watch include index levels, trading volumes, volatility measures, and institutional flows."
+  ];
+  let responseIdx = 0;
+
+  document.getElementById('chat-form').addEventListener('submit', (e) => {
+    e.preventDefault();
+    const input = document.getElementById('chat-input');
+    const msg = input.value.trim();
+    if (!msg) return;
+
+    const container = document.getElementById('chat-messages');
+    const userDiv = document.createElement('div');
+    userDiv.className = 'chat-msg flex gap-3 justify-end';
+    userDiv.innerHTML = `<div class="rounded-xl px-4 py-3 text-sm" style="background:rgba(212,175,55,0.12);color:#e8e8e8;">${msg}</div>
+      <div class="w-8 h-8 rounded-lg flex-shrink-0 flex items-center justify-center" style="background:rgba(255,255,255,0.06);"><i data-lucide="user" style="width:16px;height:16px;color:#9ca3af;"></i></div>`;
+    container.appendChild(userDiv);
+    input.value = '';
+
+    setTimeout(() => {
+      const botDiv = document.createElement('div');
+      botDiv.className = 'chat-msg flex gap-3';
+      botDiv.innerHTML = `<div class="w-8 h-8 rounded-lg flex-shrink-0 flex items-center justify-center" style="background:rgba(212,175,55,0.15);"><i data-lucide="bot" style="width:16px;height:16px;color:#D4AF37;"></i></div>
+        <div class="rounded-xl px-4 py-3 text-sm" style="background:rgba(255,255,255,0.04);color:#d1d5db;">${demoResponses[responseIdx % demoResponses.length]}</div>`;
+      container.appendChild(botDiv);
+      responseIdx++;
+      container.scrollTop = container.scrollHeight;
+      lucide.createIcons();
+    }, 800);
+
+    container.scrollTop = container.scrollHeight;
+    lucide.createIcons();
+  });
+
+  // Investment Calculator
+  function calculateInvestment() {
+    const initial = parseFloat(document.getElementById('initial-amount').value) || 0;
+    const monthly = parseFloat(document.getElementById('monthly-amount').value) || 0;
+    const years = parseFloat(document.getElementById('period-years').value) || 1;
+    const rate = parseFloat(document.getElementById('return-rate').value) || 0;
+
+    const months = years * 12;
+    const monthlyRate = rate / 100 / 12;
+    const fvInitial = initial * Math.pow(1 + monthlyRate, months);
+    const fvMonthly = monthlyRate === 0 ? (monthly * months) : (monthly * (Math.pow(1 + monthlyRate, months) - 1) / monthlyRate);
+
+    const totalFutureValue = fvInitial + fvMonthly;
+    const totalInvested = initial + (monthly * months);
+    const returns = totalFutureValue - totalInvested;
+
+    document.getElementById('result-invested').textContent = '₦' + totalInvested.toLocaleString('en-NG', { maximumFractionDigits: 0 });
+    document.getElementById('result-returns').textContent = '₦' + returns.toLocaleString('en-NG', { maximumFractionDigits: 0 });
+    document.getElementById('result-total').textContent = '₦' + totalFutureValue.toLocaleString('en-NG', { maximumFractionDigits: 0 });
+  }
+
+  ['initial-amount', 'monthly-amount', 'period-years', 'return-rate'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) {
+      el.addEventListener('input', calculateInvestment);
+      el.addEventListener('change', calculateInvestment);
+    }
+  });
+
+  calculateInvestment();
+  lucide.createIcons();
 </script>
- <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9e4fc9d5919e873a',t:'MTc3NDk2NDY2Mi4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+ <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9e5aa78350ef9a7c',t:'MTc3NTA3ODYwMC4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
 </html>
